@@ -33,7 +33,7 @@ class CarModel(models.Model):
 
 
 class CarDealer:
-
+    
     def __init__(self, address, city, full_name, id, lat, long, short_name, st, zip):
         # Dealer address
         self.address = address
