@@ -13,8 +13,10 @@ def get_request(url, **kwargs):
     print("GET from {} ".format(url))
     try:
         # Call get method of requests library with URL and parameters
-        response = requests.get(url, headers={'Content-Type': 'application/json'},
-                                    params=kwargs)
+        if "apikey" in kwargs:
+            response = requests.get(url, headers={'Content-Type':'application/json'}, params=kwargs, auth=HTTPBasicAuth("apikey", kwargs["apikey"]))
+        else:
+            response = requests.get(url, headers={'Content-Type':'application/json'}, params=kwargs)
     except:
         # If any error occurs
         print("Network exception occurred")
@@ -25,6 +27,18 @@ def get_request(url, **kwargs):
 
 # Create a `post_request` to make HTTP POST requests
 # e.g., response = requests.post(url, params=kwargs, json=payload)
+def post_request(url, payload, **kwargs):
+    print(url)
+    print(payload)
+    print(kwargs)
+    try:
+        response = requests.post(url, params=kwargs, json=payload)
+    except Exception as e:
+        print("Error" ,e)
+    status_code = response.status_code
+    print("With status {} ".format(status_code))
+    json_data = json.loads(response.text)
+    return json_data
 
 
 # Create a get_dealers_from_cf method to get dealers from a cloud function
@@ -88,7 +102,7 @@ def get_dealer_reviews_from_cf(url, dealer_id):
                 car_make=review["car_make"],
                 car_model=review["car_model"],
                 car_year=review["car_year"],
-                sentiment="1",
+                sentiment=analyze_review_sentiments(review),
                 id=review['id']
                 )
             results.append(review_obj)
@@ -96,9 +110,16 @@ def get_dealer_reviews_from_cf(url, dealer_id):
     return results
 
 # Create an `analyze_review_sentiments` method to call Watson NLU and analyze text
-# def analyze_review_sentiments(text):
-# - Call get_request() with specified arguments
-# - Get the returned sentiment label such as Positive or Negative
-
-
+def analyze_review_sentiments(dealerreview):
+    API_KEY="W1clNL0mYew8F8eKtmDOxrRiYmf2f-FntOJ74rhfQUs-"
+    URL='https://api.us-south.natural-language-understanding.watson.cloud.ibm.com/instances/767a163f-e5a9-49c5-86b1-464a92f1e2d2'
+    params = json.dumps({"text": dealerreview, "features": {"sentiment": {}}})
+    response = requests.post(
+        URL, data=params, headers={'Content-Type': 'application/json'}, auth=HTTPBasicAuth('apikey', API_KEY)
+    )
+    try:
+        return response.json()['sentiment']['document']['label']
+    except KeyError:
+        return 'neutral'
+    
 

@@ -2,8 +2,8 @@ from django.shortcuts import render
 from django.http import HttpResponseRedirect, HttpResponse
 from django.contrib.auth.models import User
 from django.shortcuts import get_object_or_404, render, redirect
-from .models import CarDealer, CarModel, CarMake
-from .restapis import get_dealers_from_cf, get_dealer_by_id_from_cf, get_dealer_reviews_from_cf
+from .models import CarDealer, DealerReview, CarModel, CarMake
+from .restapis import get_dealers_from_cf, get_dealer_by_id_from_cf, get_dealer_reviews_from_cf, post_request
 from django.contrib.auth import login, logout, authenticate
 from django.contrib import messages
 from datetime import datetime
@@ -104,6 +104,31 @@ def get_dealer_details(request, dealer_id):
         return HttpResponse(dealerships)
 
 # Create a `add_review` view to submit a review
-# def add_review(request, dealer_id):
-# ...
-
+def add_review(request, dealer_id):
+    context = {}
+    if request.method == 'POST':
+        if (request.user.is_authenticated):
+            review = dict()
+            # review["name"]=request.POST["name"]
+            # review["dealership"]=dealer_id
+            # review["review"]=request.POST["content"]
+            # if ("purchasecheck" in request.POST):
+            #     review["purchase"]=True
+            # else:
+            #     review["purchase"]=False
+            # print(request.POST["car"])
+            # if review["purchase"] == True:
+            #     car_parts=request.POST["car"].split("|")
+            #     review["purchase_date"]=request.POST["purchase_date"] 
+            #     review["car_make"]=car_parts[0]
+            #     review["car_model"]=car_parts[1]
+            #     review["car_year"]=car_parts[2]
+            review["time"] = datetime.utcnow().isoformat()
+            review["dealership"] = 11
+            review["review"] = "This is a great car dealer"
+            json_payload["review"] = review
+            try:
+                json_result = post_request("https://3233b720.us-south.apigw.appdomain.cloud/api/review", json_payload, dealerId=dealer_id)
+                return HttpResponse(json_result)
+            except:
+                logger.debug("Review was not submitted.")
