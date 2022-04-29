@@ -13,7 +13,7 @@
     <nav class="navbar navbar-light bg-light">
         <div class="container-fluid">
             <div class="navbar-header">
-                <a class="navbar-brand" href="#">Car</a>
+                <a class="navbar-brand" href="/djangoapp#">Car</a>
             </div>
             <ul class="nav navbar-nav navbar-right">
                 {% if user.is_authenticated %}
@@ -38,7 +38,7 @@
         </div>
     </nav>
     <!-- Add reviews as cards -->
-    <main class="container">
+    <main class="container pt-2">
         <div class="card-columns">
             {% for review in reviews %}
                 <div class="card">
@@ -54,11 +54,16 @@
             {% endfor %}
         </div>
         {% if user.is_authenticated %}
-            <a class="btn btn-warning " type="submit" href="{% url 'djangoapp:add_review' dealer_id %}">Write a Review!</a>
+            <a class="btn btn-secondary " href="{% url 'djangoapp:add_review' dealer_id %}">Write a Review!</a>
         {% else %}
             <a class="btn btn-info " disabled>Login to write a review!</a>
         {% endif %}
     </main>
+    <footer class="fixed-bottom" style="background-color: #0a4275;">
+        <div class="container p-2">
+          <a class="btn btn-secondary" role="button" href="{% url 'djangoapp:about' %}">About Us</a>
+          <a class="btn btn-secondary" role="button" href="{% url 'djangoapp:contact' %}">Contact Us</a>
+        </div>
+    </footer>
     </body>
-
 </html>
